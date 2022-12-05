@@ -1,5 +1,13 @@
+html, body, #root {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+}
+
 body {
     margin: 0;
+    flex: 1;
     font-family: 'Helvetica', 'Arial', sans-serif;
 
     -webkit-font-smoothing: antialiased;

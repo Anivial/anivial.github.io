@@ -1,0 +1,21 @@
+import React from 'react';
+import logo from 'src/logo.svg';
+import { HomeContainer, Header, Logo } from './Home.styled';
+
+const Home = () => {
+    return (
+        <HomeContainer>
+            <Header>
+                <Logo
+                    src={logo}
+                    alt="logo"
+                />
+                <p>
+                    Hello World :')
+                </p>
+            </Header>
+        </HomeContainer>
+    );
+};
+
+export default Home;

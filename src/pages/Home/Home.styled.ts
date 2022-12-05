@@ -1,19 +1,17 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
-export const AppContainer = styled.div`
+export const HomeContainer = styled.div`
+  height: 100%;
   text-align: center;
 `;
 
 export const Header = styled.header`
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
+  height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 `;
 
 const spin = keyframes`

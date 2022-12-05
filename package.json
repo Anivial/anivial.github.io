@@ -1,7 +1,7 @@
 {
   "name": "anivial.github.io",
   "version": "0.1.0",
-  "homepage": "https://anivial.github.io",
+  "homepage": "https://anivial.github.io/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",

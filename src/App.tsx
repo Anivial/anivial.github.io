@@ -1,20 +1,21 @@
 import React from 'react';
 import logo from './logo.svg';
-import './App.css';
+import { AppContainer, Header, Logo } from './App.styled';
 
 
 const App = () => {
-    console.log(process.env)
-
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo"/>
+        <AppContainer>
+            <Header>
+                <Logo
+                    src={logo}
+                    alt="logo"
+                />
                 <p>
-                    Hello Worlds :')
+                    Hello World :')
                 </p>
-            </header>
-        </div>
+            </Header>
+        </AppContainer>
     );
 };
 

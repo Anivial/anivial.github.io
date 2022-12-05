@@ -16,7 +16,7 @@ jobs:
 
     - run: yarn install
       shell: bash
-    - run: yarn ci
+    - run: yarn install --frozen-lockfile
       shell: bash
     - run: yarn run build
       shell: bash

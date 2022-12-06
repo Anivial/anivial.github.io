@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Navbar from 'src/components/Navbar/Navbar';
 import Home from 'src/pages/Home';
 import Snake from 'src/pages/Snake';

@@ -82,23 +82,24 @@ const Snake = () => {
         // Head
         const head = snake[0];
         switch (snakeDirection.current) {
-            case DIRECTION.ArrowUp: {
-                canvas.fillRect(head.x * BASE_UNIT, (head.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * where);
-                break;
-            }
-            case DIRECTION.ArrowDown: {
-                canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * where);
-                break;
-            }
-            case DIRECTION.ArrowLeft: {
-                canvas.fillRect((head.x+1) * BASE_UNIT, head.y * BASE_UNIT, -BASE_UNIT * where, BASE_UNIT);
-                break;
-            }
-            case DIRECTION.ArrowRight: {
-                canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT * where, BASE_UNIT);
-                break;
-            }
-            default: break;
+        case DIRECTION.ArrowUp: {
+            canvas.fillRect(head.x * BASE_UNIT, (head.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * where);
+            break;
+        }
+        case DIRECTION.ArrowDown: {
+            canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * where);
+            break;
+        }
+        case DIRECTION.ArrowLeft: {
+            canvas.fillRect((head.x + 1) * BASE_UNIT, head.y * BASE_UNIT, -BASE_UNIT * where, BASE_UNIT);
+            break;
+        }
+        case DIRECTION.ArrowRight: {
+            canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT * where, BASE_UNIT);
+            break;
+        }
+        default:
+            break;
         }
 
         // Tail
@@ -108,18 +109,18 @@ const Snake = () => {
         const tailDirection = {
             x: pretail.x - tail.x,
             y: pretail.y - tail.y,
-        }
+        };
 
         if (tailDirection.x === 0 && tailDirection.y === -1) {
             canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1 - where));
         } else if (tailDirection.x === 0 && tailDirection.y === 1) {
-            canvas.fillRect(tail.x * BASE_UNIT, (tail.y+1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1-where));
+            canvas.fillRect(tail.x * BASE_UNIT, (tail.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1 - where));
         } else if (tailDirection.x === -1 && tailDirection.y === 0) {
-            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1-where), BASE_UNIT);
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1 - where), BASE_UNIT);
         } else if (tailDirection.x === 1 && tailDirection.y === 0) {
-            canvas.fillRect((tail.x+1) * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1-where), BASE_UNIT);
+            canvas.fillRect((tail.x + 1) * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
         }
-    }
+    };
 
     const draw = () => {
         if (!canvas) return;
@@ -133,7 +134,7 @@ const Snake = () => {
         // Draw Apple
         canvas.fillStyle = 'red';
         canvas.fillRect(apple.current.x * BASE_UNIT, apple.current.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
-    }
+    };
 
     useEffect(() => {
         const moveSnake = (event: KeyboardEvent) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from 'src/logo.svg';
-import { HomeContainer, Header, Logo } from './Home.styled';
+import { Header, HomeContainer, Logo } from './Home.styled';
 
 const Home = () => {
     return (

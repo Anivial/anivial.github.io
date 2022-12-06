@@ -77,11 +77,11 @@ const Test = () => {
         context.fillRect(apple.x, apple.y, 1, 1);
     }, [snake, apple]);
 
+    /*
     useEffect(() => {
         draw();
     }, [draw, snake, apple]);
-
-
+    */
 
     useEffect(() => {
         const moveSnake = (event: KeyboardEvent) => {
@@ -103,7 +103,7 @@ const Test = () => {
         const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
 
         let direction = nextDirection.current.shift();
-        while(direction && !(direction.x + snakeDirection.current.x) && !(direction.y + snakeDirection.current.y)){
+        while (direction && !(direction.x + snakeDirection.current.x) && !(direction.y + snakeDirection.current.y)) {
             direction = nextDirection.current.shift();
         }
         if (!direction) {
@@ -153,6 +153,8 @@ const Test = () => {
 
     useFrameLoop((dt) => {
         update(dt);
+        draw();
+        //console.log(1/dt * 1000);
     });
 
     const startGame = () => {

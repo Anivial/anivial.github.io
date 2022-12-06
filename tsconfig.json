@@ -2,7 +2,7 @@
     "compileOnSave": false,
     "compilerOptions": {
         "types": [
-            "node",
+            "node"
         ],
         "outDir": "./build",
         "baseUrl": ".",
@@ -36,12 +36,12 @@
         "paths": {
             "src/*": [
                 "./src/*"
-            ],
+            ]
         },
         "resolveJsonModule": true
     },
     "include": [
         "src/**/*",
-        "custom.d.ts",
+        "custom.d.ts"
     ]
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TestContainer } from './Snake.styled';
 
 export const BASE_UNIT = 30;
@@ -20,17 +20,17 @@ export const useFrameLoop = (update: (dt: number) => void) => {
     const requestID = useRef<number>();
     const previousTime = useRef<number>();
 
-    const loop = useCallback(time => {
-        if (previousTime.current !== undefined) {
-            const deltaTime = time - previousTime.current;
-            update(deltaTime);
-        }
-
-        previousTime.current = time;
-        requestID.current = requestAnimationFrame(loop);
-    }, [update]);
-
     useEffect(() => {
+        const loop = (time) => {
+            if (previousTime.current !== undefined) {
+                const deltaTime = time - previousTime.current;
+                update(deltaTime);
+            }
+
+            previousTime.current = time;
+            requestID.current = requestAnimationFrame(loop);
+        };
+
         requestID.current = requestAnimationFrame(loop);
 
         return () => {
@@ -38,7 +38,7 @@ export const useFrameLoop = (update: (dt: number) => void) => {
                 cancelAnimationFrame(requestID.current);
             }
         };
-    }, [loop]);
+    }, [update]);
 };
 
 export interface ICoords {
@@ -51,12 +51,12 @@ const Snake = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // Default position
-    const [snake, setSnake] = useState<Array<ICoords>>(SNAKE_START);
-    const [apple, setApple] = useState<ICoords>(APPLE_START);
+    const snake = useRef<Array<ICoords>>(SNAKE_START);
+    const apple = useRef<ICoords>(APPLE_START);
 
     const snakeDirection = useRef<ICoords>(DIRECTION_START);
     const nextDirection = useRef<ICoords[]>([]);
-    const [speed, setSpeed] = useState<number | null>(null);
+    const speed = useRef<number | null>(null);
 
     // Game state
     const [points, setPoints] = useState<number>(0);
@@ -66,29 +66,74 @@ const Snake = () => {
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-    const draw = useCallback(() => {
-        const context = canvasRef.current?.getContext('2d');
-        if (!context) return;
+    const canvas = canvasRef.current?.getContext('2d');
 
-        context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
-        context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
+    const drawSnake = (snake: Array<ICoords>) => {
+        if (!canvas) return;
+        const where = timer.current / INITIAL_SPEED;
 
         // Draw Snake
-        context.fillStyle = 'green';
-        snake.forEach(({ x, y }, index) => {
-            context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
-        });
+        canvas.fillStyle = 'green';
+        for (let i = 1; i < snake.length - 1; i++) {
+            let { x, y } = snake[i];
+            canvas.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+        }
+
+        // Head
+        const head = snake[0];
+        switch (snakeDirection.current) {
+            case DIRECTION.ArrowUp: {
+                canvas.fillRect(head.x * BASE_UNIT, (head.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * where);
+                break;
+            }
+            case DIRECTION.ArrowDown: {
+                canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * where);
+                break;
+            }
+            case DIRECTION.ArrowLeft: {
+                canvas.fillRect((head.x+1) * BASE_UNIT, head.y * BASE_UNIT, -BASE_UNIT * where, BASE_UNIT);
+                break;
+            }
+            case DIRECTION.ArrowRight: {
+                canvas.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT * where, BASE_UNIT);
+                break;
+            }
+            default: break;
+        }
+
+        // Tail
+        const tail = snake[snake.length - 1];
+        const pretail = snake[snake.length - 2];
+
+        const tailDirection = {
+            x: pretail.x - tail.x,
+            y: pretail.y - tail.y,
+        }
+
+        if (tailDirection.x === 0 && tailDirection.y === -1) {
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1 - where));
+        } else if (tailDirection.x === 0 && tailDirection.y === 1) {
+            canvas.fillRect(tail.x * BASE_UNIT, (tail.y+1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1-where));
+        } else if (tailDirection.x === -1 && tailDirection.y === 0) {
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1-where), BASE_UNIT);
+        } else if (tailDirection.x === 1 && tailDirection.y === 0) {
+            canvas.fillRect((tail.x+1) * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1-where), BASE_UNIT);
+        }
+    }
+
+    const draw = () => {
+        if (!canvas) return;
+
+        canvas.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        canvas.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
+
+        // Draw Snake
+        drawSnake(snake.current);
 
         // Draw Apple
-        context.fillStyle = 'red';
-        context.fillRect(apple.x * BASE_UNIT, apple.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
-    }, [snake, apple]);
-
-    /*
-    useEffect(() => {
-        draw();
-    }, [draw, snake, apple]);
-    */
+        canvas.fillStyle = 'red';
+        canvas.fillRect(apple.current.x * BASE_UNIT, apple.current.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+    }
 
     useEffect(() => {
         const moveSnake = (event: KeyboardEvent) => {
@@ -111,9 +156,9 @@ const Snake = () => {
     };
 
     const gameLoop = () => {
-        if (!speed) return;
+        if (!speed.current) return;
 
-        const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
+        const snakeCopy = [...snake.current]; // Create shallow copy to avoid mutating array
 
         let direction = nextDirection.current.shift();
         while (direction && !(direction.x + snakeDirection.current.x) && !(direction.y + snakeDirection.current.y)) {
@@ -134,10 +179,10 @@ const Snake = () => {
         if (!checkAppleCollision(snakeCopy)) snakeCopy.pop();
         if (checkCollision(newSnakeHead, snakeCopy.slice(1))) endGame();
 
-        setSnake(snakeCopy);
+        snake.current = snakeCopy;
     };
 
-    const checkCollision = (piece: ICoords, snoko: ICoords[] = snake) => {
+    const checkCollision = (piece: ICoords, snoko: ICoords[] = snake.current) => {
         // Snake Collision Detection
         for (const segment of snoko) {
             if (piece.x === segment.x && piece.y === segment.y) return true;
@@ -148,43 +193,47 @@ const Snake = () => {
     };
 
     const update = (dt: number) => {
-        timer.current += dt;
-        if (timer.current > INITIAL_SPEED) {
-            timer.current = 0;
-            gameLoop();
+        if (speed.current !== null) {
+            timer.current += dt;
+            if (timer.current > INITIAL_SPEED) {
+                timer.current = 0;
+                gameLoop();
+            }
         }
     };
 
     useFrameLoop((dt) => {
         update(dt);
         draw();
-        //console.log(1/dt * 1000);
     });
 
     const startGame = () => {
-        setIsPlaying(true);
-        setSnake(SNAKE_START);
-        setApple(APPLE_START);
-        setSpeed(INITIAL_SPEED);
-        setGameOver(false);
-        setPoints(0);
+        snake.current = SNAKE_START;
+        apple.current = APPLE_START;
+        speed.current = INITIAL_SPEED;
+        timer.current = 0;
         snakeDirection.current = DIRECTION_START;
         nextDirection.current = [];
+
+        setIsPlaying(true);
+        setGameOver(false);
+        setPoints(0);
     };
 
     const endGame = () => {
         setIsPlaying(false);
-        setSpeed(null);
+        speed.current = null;
+        timer.current = 0;
         setGameOver(true);
     };
 
     const checkAppleCollision = (newSnake: ICoords[]) => {
-        if (newSnake[0].x === apple.x && newSnake[0].y === apple.y) {
+        if (newSnake[0].x === apple.current.x && newSnake[0].y === apple.current.y) {
             let newApple = createRandomApple();
             while (checkCollision(newApple, newSnake)) {
                 newApple = createRandomApple();
             }
-            setApple(newApple);
+            apple.current = newApple;
             setPoints(points + 1);
             return true;
         }

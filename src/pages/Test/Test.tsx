@@ -5,7 +5,7 @@ export const canvas_size = { x: 600, y: 600 };
 export const snake_start = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
 export const direction_start = { x: 0, y: -1 };
 export const apple_start = { x: 8, y: 3 };
-export const scale = 40;
+export const scale = 30;
 export const initial_speed = 100;
 export const directions = {
     ArrowUp: { x: 0, y: -1 },
@@ -55,10 +55,9 @@ const Test = () => {
     const [points, setPoints] = useState<number>(0);
     const [gameOver, setGameOver] = useState<boolean>();
 
-    const wrapperRef = useRef<HTMLDivElement>(null);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-    const render = () => {
+    const draw = useCallback(() => {
         const context = canvasRef.current?.getContext('2d');
         if (context == null) throw new Error('Could not get context');
         context.setTransform(scale, 0, 0, scale, 0, 0);
@@ -69,32 +68,35 @@ const Test = () => {
         // Draw Apple
         context.fillStyle = 'red';
         context.fillRect(apple.x, apple.y, 1, 1);
-    };
+    }, [snake, apple]);
 
-     useEffect(() => {
-        render();
-    }, [render, snake, apple]);
+    useEffect(() => {
+        draw();
+    }, [draw, snake, apple]);
 
     const [direction, setDirection] = useState<ICoords>(direction_start);
 
-    const moveSnake = (event: React.KeyboardEvent) => {
-        const { key } = event;
-        // Check if key is arrow key
-        if (
-            key === 'ArrowUp' ||
-            key === 'ArrowDown' ||
-            key === 'ArrowRight' ||
-            key === 'ArrowLeft'
-        ) {
-            // disable backwards key, this means no collision when going right, and then pressing ArrowLeft
+
+    useEffect(() => {
+        const moveSnake = (event: KeyboardEvent) => {
+            const { key } = event;
+            // Check if key is arrow key
+            const newDirection = directions[key];
             if (
-                direction.x + directions[key].x &&
-                direction.y + directions[key].y
+                newDirection
+                && direction.x + newDirection.x
+                && direction.y + newDirection.y
             ) {
-                setDirection(directions[key]);
+                setDirection(newDirection);
             }
-        }
-    };
+        };
+
+        window.addEventListener('keydown', moveSnake);
+
+        return () => {
+            window.removeEventListener('keydown', moveSnake);
+        };
+    }, [direction]);
 
     const gameLoop = () => {
         const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
@@ -112,25 +114,35 @@ const Test = () => {
 
     const checkCollision = (piece: ICoords, snoko: ICoords[] = snake) => {
         // Wall Collision Detection
-        return piece.x * scale >= canvas_size.x ||
+        if (
+            piece.x * scale >= canvas_size.x ||
             piece.x < 0 ||
             piece.y * scale >= canvas_size.y ||
-            piece.y < 0;
+            piece.y < 0
+        ) {
+            return true;
+        }
+
+        // Snake Collision Detection
+        for (const segment of snoko) {
+            if (piece.x === segment.x && piece.y === segment.y) return true;
+        }
+
+        return false;
+
     };
 
     const update = (dt: number) => {
         timer.current += dt;
-        if (timer.current > initial_speed) {
+        if (speed && timer.current > speed) {
             timer.current = 0;
             gameLoop();
         }
-    }
+    };
 
     useFrameLoop((dt) => {
         update(dt);
     });
-
-    //useInterval(() => gameLoop(), speed);
 
     const startGame = () => {
         setIsPlaying(true);
@@ -139,7 +151,6 @@ const Test = () => {
         setDirection(direction_start);
         setSpeed(initial_speed);
         setGameOver(false);
-        wrapperRef.current?.focus();
         setPoints(0);
     };
 
@@ -171,33 +182,23 @@ const Test = () => {
 
     return (
         <TestContainer>
-            <div className="wrapper">
-                <div
-                    ref={wrapperRef}
-                    className="canvas"
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(event: React.KeyboardEvent) => moveSnake(event)}
-                >
-                    <canvas
-                        style={
-                            gameOver
-                                ? { border: '1px solid black', opacity: 0.5 }
-                                : { border: '1px solid black' }
-                        }
-                        ref={canvasRef}
-                        width={canvas_size.x}
-                        height={canvas_size.y}
-                    />
-                    {gameOver && <div className="game-over">Game Over</div>}
-                    {!isPlaying && (
-                        <button className="start" onClick={startGame}>
-                            Start Game
-                        </button>
-                    )}
-                </div>
-                <p className="points">{points}</p>
-            </div>
+            <canvas
+                style={
+                    gameOver
+                        ? { border: '1px solid black', opacity: 0.5 }
+                        : { border: '1px solid black' }
+                }
+                ref={canvasRef}
+                width={canvas_size.x}
+                height={canvas_size.y}
+            />
+            {gameOver && <div className="game-over">Game Over</div>}
+            {!isPlaying && (
+                <button className="start" onClick={startGame}>
+                    Start Game
+                </button>
+            )}
+            <p className="points">{points}</p>
         </TestContainer>
     );
 };

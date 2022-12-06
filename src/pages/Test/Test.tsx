@@ -52,8 +52,8 @@ const Test = () => {
     const [snake, setSnake] = useState<Array<ICoords>>(SNAKE_START);
     const [apple, setApple] = useState<ICoords>(APPLE_START);
 
-    const [snakeDirection, setSnakeDirection] = useState<ICoords>(DIRECTION_START);
-    const [nextDirection, setNextDirection] = useState<ICoords[]>([]);
+    const snakeDirection = useRef<ICoords>(DIRECTION_START);
+    const nextDirection = useRef<ICoords[]>([]);
     const [speed, setSpeed] = useState<number | null>(null);
 
     // Game state
@@ -86,9 +86,9 @@ const Test = () => {
     useEffect(() => {
         const moveSnake = (event: KeyboardEvent) => {
             const { key } = event;
-            nextDirection.push(DIRECTION[key]);
-            if (nextDirection.length > 3) {
-                nextDirection.shift();
+            nextDirection.current.push(DIRECTION[key]);
+            if (nextDirection.current.length > 3) {
+                nextDirection.current.shift();
             }
         };
 
@@ -102,15 +102,15 @@ const Test = () => {
     const gameLoop = () => {
         const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
 
-        let direction = nextDirection.shift();
-        while(direction && !(direction.x + snakeDirection.x) && !(direction.y + snakeDirection.y)){
-            direction = nextDirection.shift();
+        let direction = nextDirection.current.shift();
+        while(direction && !(direction.x + snakeDirection.current.x) && !(direction.y + snakeDirection.current.y)){
+            direction = nextDirection.current.shift();
         }
         if (!direction) {
-            direction = snakeDirection;
+            direction = snakeDirection.current;
         }
 
-        setSnakeDirection(direction);
+        snakeDirection.current = direction;
 
         const newSnakeHead: ICoords = {
             x: snakeCopy[0].x + direction.x,
@@ -159,11 +159,11 @@ const Test = () => {
         setIsPlaying(true);
         setSnake(SNAKE_START);
         setApple(APPLE_START);
-        setSnakeDirection(DIRECTION_START);
         setSpeed(INITIAL_SPEED);
         setGameOver(false);
         setPoints(0);
-        setNextDirection([]);
+        snakeDirection.current = DIRECTION_START;
+        nextDirection.current = [];
     };
 
     const endGame = () => {

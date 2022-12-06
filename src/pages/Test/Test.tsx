@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TestContainer } from './Test.styled';
 
-export const canvas_size = { x: 600, y: 600 };
-export const snake_start = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
-export const direction_start = { x: 0, y: -1 };
-export const apple_start = { x: 8, y: 3 };
-export const scale = 30;
-export const initial_speed = 100;
-export const directions = {
+export const CANVAS_SIZE = { x: 600, y: 600 };
+export const SNAKE_START = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
+export const APPLE_START = { x: 8, y: 3 };
+export const SCALE = 30;
+export const INITIAL_SPEED = 100;
+export const DIRECTION = {
     ArrowUp: { x: 0, y: -1 },
     ArrowDown: { x: 0, y: 1 },
     ArrowLeft: { x: -1, y: 0 },
     ArrowRight: { x: 1, y: 0 },
 };
+export const DIRECTION_START = DIRECTION.ArrowUp;
 
 export const useFrameLoop = (update: (dt: number) => void) => {
     const requestID = useRef<number>();
@@ -45,23 +45,30 @@ export interface ICoords {
 }
 
 const Test = () => {
+    // Canvas
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const timer = useRef<number>(0);
+    // Default position
+    const [snake, setSnake] = useState<Array<ICoords>>(SNAKE_START);
+    const [apple, setApple] = useState<ICoords>(APPLE_START);
 
-    const [snake, setSnake] = useState<Array<ICoords>>(snake_start);
-    const [apple, setApple] = useState<ICoords>(apple_start);
+    const [snakeDirection, setSnakeDirection] = useState<ICoords>(DIRECTION_START);
+    const [nextDirection, setNextDirection] = useState<ICoords[]>([]);
     const [speed, setSpeed] = useState<number | null>(null);
+
+    // Game state
     const [points, setPoints] = useState<number>(0);
     const [gameOver, setGameOver] = useState<boolean>();
+
+    const timer = useRef<number>(0);
 
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
     const draw = useCallback(() => {
         const context = canvasRef.current?.getContext('2d');
         if (context == null) throw new Error('Could not get context');
-        context.setTransform(scale, 0, 0, scale, 0, 0);
-        context.clearRect(0, 0, canvas_size.x, canvas_size.y);
+        context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
         // Draw Snake
         context.fillStyle = 'green';
         snake.forEach(({ x, y }) => context.fillRect(x, y, 1, 1));
@@ -74,20 +81,14 @@ const Test = () => {
         draw();
     }, [draw, snake, apple]);
 
-    const [direction, setDirection] = useState<ICoords>(direction_start);
 
 
     useEffect(() => {
         const moveSnake = (event: KeyboardEvent) => {
             const { key } = event;
-            // Check if key is arrow key
-            const newDirection = directions[key];
-            if (
-                newDirection
-                && direction.x + newDirection.x
-                && direction.y + newDirection.y
-            ) {
-                setDirection(newDirection);
+            nextDirection.push(DIRECTION[key]);
+            if (nextDirection.length > 3) {
+                nextDirection.shift();
             }
         };
 
@@ -96,18 +97,28 @@ const Test = () => {
         return () => {
             window.removeEventListener('keydown', moveSnake);
         };
-    }, [direction]);
+    }, [nextDirection, snakeDirection]);
 
     const gameLoop = () => {
         const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
+
+        let direction = nextDirection.shift();
+        while(direction && !(direction.x + snakeDirection.x) && !(direction.y + snakeDirection.y)){
+            direction = nextDirection.shift();
+        }
+        if (!direction) {
+            direction = snakeDirection;
+        }
+
+        setSnakeDirection(direction);
+
         const newSnakeHead: ICoords = {
             x: snakeCopy[0].x + direction.x,
             y: snakeCopy[0].y + direction.y,
         };
         snakeCopy.unshift(newSnakeHead);
-
-        if (checkCollision(newSnakeHead)) endGame();
         if (!checkAppleCollision(snakeCopy)) snakeCopy.pop();
+        if (checkCollision(newSnakeHead, snakeCopy.slice(1))) endGame();
 
         setSnake(snakeCopy);
     };
@@ -115,9 +126,9 @@ const Test = () => {
     const checkCollision = (piece: ICoords, snoko: ICoords[] = snake) => {
         // Wall Collision Detection
         if (
-            piece.x * scale >= canvas_size.x ||
+            piece.x * SCALE >= CANVAS_SIZE.x ||
             piece.x < 0 ||
-            piece.y * scale >= canvas_size.y ||
+            piece.y * SCALE >= CANVAS_SIZE.y ||
             piece.y < 0
         ) {
             return true;
@@ -146,12 +157,13 @@ const Test = () => {
 
     const startGame = () => {
         setIsPlaying(true);
-        setSnake(snake_start);
-        setApple(apple_start);
-        setDirection(direction_start);
-        setSpeed(initial_speed);
+        setSnake(SNAKE_START);
+        setApple(APPLE_START);
+        setSnakeDirection(DIRECTION_START);
+        setSpeed(INITIAL_SPEED);
         setGameOver(false);
         setPoints(0);
+        setNextDirection([]);
     };
 
     const endGame = () => {
@@ -175,8 +187,8 @@ const Test = () => {
 
     const createRandomApple = () => {
         return {
-            x: Math.floor((Math.random() * canvas_size.x - 10) / scale),
-            y: Math.floor((Math.random() * canvas_size.y - 10) / scale),
+            x: Math.floor((Math.random() * CANVAS_SIZE.x - 10) / SCALE),
+            y: Math.floor((Math.random() * CANVAS_SIZE.y - 10) / SCALE),
         };
     };
 
@@ -189,8 +201,8 @@ const Test = () => {
                         : { border: '1px solid black' }
                 }
                 ref={canvasRef}
-                width={canvas_size.x}
-                height={canvas_size.y}
+                width={CANVAS_SIZE.x}
+                height={CANVAS_SIZE.y}
             />
             {gameOver && <div className="game-over">Game Over</div>}
             {!isPlaying && (

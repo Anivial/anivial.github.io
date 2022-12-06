@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TestContainer } from './Snake.styled';
 
-export const CANVAS_SIZE = { x: 600, y: 600 };
+export const BASE_UNIT = 30;
+export const GRID_SIZE = { x: 20, y: 20 };
+export const CANVAS_SIZE = { x: GRID_SIZE.x * BASE_UNIT, y: GRID_SIZE.y * BASE_UNIT };
 export const SNAKE_START = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
 export const APPLE_START = { x: 8, y: 3 };
-export const SCALE = 30;
+export const SCALE = 1;
 export const INITIAL_SPEED = 100;
 export const DIRECTION = {
     ArrowUp: { x: 0, y: -1 },
@@ -66,15 +68,20 @@ const Snake = () => {
 
     const draw = useCallback(() => {
         const context = canvasRef.current?.getContext('2d');
-        if (context == null) throw new Error('Could not get context');
+        if (!context) return;
+
         context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
         context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
+
         // Draw Snake
         context.fillStyle = 'green';
-        snake.forEach(({ x, y }) => context.fillRect(x, y, 1, 1));
+        snake.forEach(({ x, y }, index) => {
+            context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+        });
+
         // Draw Apple
         context.fillStyle = 'red';
-        context.fillRect(apple.x, apple.y, 1, 1);
+        context.fillRect(apple.x * BASE_UNIT, apple.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
     }, [snake, apple]);
 
     /*
@@ -99,7 +106,13 @@ const Snake = () => {
         };
     }, [nextDirection, snakeDirection]);
 
+    const randomIntFromInterval = (min: number, max: number): number => { // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
     const gameLoop = () => {
+        if (!speed) return;
+
         const snakeCopy = [...snake]; // Create shallow copy to avoid mutating array
 
         let direction = nextDirection.current.shift();
@@ -113,9 +126,10 @@ const Snake = () => {
         snakeDirection.current = direction;
 
         const newSnakeHead: ICoords = {
-            x: snakeCopy[0].x + direction.x,
-            y: snakeCopy[0].y + direction.y,
+            x: (snakeCopy[0].x + direction.x + GRID_SIZE.x) % GRID_SIZE.x,
+            y: (snakeCopy[0].y + direction.y + GRID_SIZE.y) % GRID_SIZE.y,
         };
+
         snakeCopy.unshift(newSnakeHead);
         if (!checkAppleCollision(snakeCopy)) snakeCopy.pop();
         if (checkCollision(newSnakeHead, snakeCopy.slice(1))) endGame();
@@ -124,16 +138,6 @@ const Snake = () => {
     };
 
     const checkCollision = (piece: ICoords, snoko: ICoords[] = snake) => {
-        // Wall Collision Detection
-        if (
-            piece.x * SCALE >= CANVAS_SIZE.x ||
-            piece.x < 0 ||
-            piece.y * SCALE >= CANVAS_SIZE.y ||
-            piece.y < 0
-        ) {
-            return true;
-        }
-
         // Snake Collision Detection
         for (const segment of snoko) {
             if (piece.x === segment.x && piece.y === segment.y) return true;
@@ -145,7 +149,7 @@ const Snake = () => {
 
     const update = (dt: number) => {
         timer.current += dt;
-        if (speed && timer.current > speed) {
+        if (timer.current > INITIAL_SPEED) {
             timer.current = 0;
             gameLoop();
         }
@@ -189,8 +193,8 @@ const Snake = () => {
 
     const createRandomApple = () => {
         return {
-            x: Math.floor((Math.random() * CANVAS_SIZE.x - 10) / SCALE),
-            y: Math.floor((Math.random() * CANVAS_SIZE.y - 10) / SCALE),
+            x: randomIntFromInterval(0, GRID_SIZE.x - 1),
+            y: randomIntFromInterval(0, GRID_SIZE.y - 1),
         };
     };
 

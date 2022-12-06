@@ -7,7 +7,7 @@ export const CANVAS_SIZE = { x: GRID_SIZE.x * BASE_UNIT, y: GRID_SIZE.y * BASE_U
 export const SNAKE_START = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
 export const APPLE_START = { x: 8, y: 3 };
 export const SCALE = 1;
-export const INITIAL_SPEED = 500;
+export const INITIAL_SPEED = 100;
 export const DIRECTION = {
     ArrowUp: { x: 0, y: -1 },
     ArrowDown: { x: 0, y: 1 },
@@ -53,6 +53,7 @@ const Snake = () => {
     // Default position
     const snake = useRef<Array<ICoords>>(SNAKE_START);
     const apple = useRef<ICoords>(APPLE_START);
+    const justEat = useRef<boolean>(false);
 
     const snakeDirection = useRef<ICoords>(DIRECTION_START);
     const nextDirection = useRef<ICoords[]>([]);
@@ -71,6 +72,7 @@ const Snake = () => {
 
     const drawSnake = (snake: Array<ICoords>) => {
         if (!canvas) return;
+
         const where = timer.current / INITIAL_SPEED;
 
         // Draw Snake
@@ -104,7 +106,8 @@ const Snake = () => {
         }
 
         // Tail
-        const tail = snake[snake.length - 1];
+
+        let tail = snake[snake.length - (justEat.current ? 2 : 1)];
 
         // UP
         if (previousTailDirection.current.x === 0 && previousTailDirection.current.y === -1) {
@@ -118,6 +121,10 @@ const Snake = () => {
         // RIGHT
         } else if (previousTailDirection.current.x === 1 && previousTailDirection.current.y === 0) {
             canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
+        }
+
+        if (justEat.current) {
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
     };
 
@@ -184,7 +191,12 @@ const Snake = () => {
         };
 
         snakeCopy.unshift(newSnakeHead);
-        if (!checkAppleCollision(snakeCopy)) snakeCopy.pop();
+        if (checkAppleCollision(snakeCopy)) {
+            justEat.current = true;
+        } else {
+            justEat.current = false;
+            snakeCopy.pop();
+        }
         if (checkCollision(newSnakeHead, snakeCopy.slice(1))) endGame();
 
         snake.current = snakeCopy;

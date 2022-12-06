@@ -7,7 +7,7 @@ export const CANVAS_SIZE = { x: GRID_SIZE.x * BASE_UNIT, y: GRID_SIZE.y * BASE_U
 export const SNAKE_START = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
 export const APPLE_START = { x: 8, y: 3 };
 export const SCALE = 1;
-export const INITIAL_SPEED = 100;
+export const INITIAL_SPEED = 500;
 export const DIRECTION = {
     ArrowUp: { x: 0, y: -1 },
     ArrowDown: { x: 0, y: 1 },
@@ -56,6 +56,7 @@ const Snake = () => {
 
     const snakeDirection = useRef<ICoords>(DIRECTION_START);
     const nextDirection = useRef<ICoords[]>([]);
+    const previousTailDirection = useRef<ICoords>(DIRECTION_START);
     const speed = useRef<number | null>(null);
 
     // Game state
@@ -74,7 +75,7 @@ const Snake = () => {
 
         // Draw Snake
         canvas.fillStyle = 'green';
-        for (let i = 1; i < snake.length - 1; i++) {
+        for (let i = 1; i < snake.length; i++) {
             let { x, y } = snake[i];
             canvas.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
@@ -104,21 +105,19 @@ const Snake = () => {
 
         // Tail
         const tail = snake[snake.length - 1];
-        const pretail = snake[snake.length - 2];
 
-        const tailDirection = {
-            x: pretail.x - tail.x,
-            y: pretail.y - tail.y,
-        };
-
-        if (tailDirection.x === 0 && tailDirection.y === -1) {
-            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1 - where));
-        } else if (tailDirection.x === 0 && tailDirection.y === 1) {
-            canvas.fillRect(tail.x * BASE_UNIT, (tail.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1 - where));
-        } else if (tailDirection.x === -1 && tailDirection.y === 0) {
-            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1 - where), BASE_UNIT);
-        } else if (tailDirection.x === 1 && tailDirection.y === 0) {
-            canvas.fillRect((tail.x + 1) * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
+        // UP
+        if (previousTailDirection.current.x === 0 && previousTailDirection.current.y === -1) {
+            canvas.fillRect(tail.x * BASE_UNIT, (tail.y+1) * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1-where));
+        // DOWN
+        } else if (previousTailDirection.current.x === 0 && previousTailDirection.current.y === 1) {
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1 - where));
+        // LEFT
+        } else if (previousTailDirection.current.x === -1 && previousTailDirection.current.y === 0) {
+            canvas.fillRect((tail.x+1) * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1 - where), BASE_UNIT);
+        // RIGHT
+        } else if (previousTailDirection.current.x === 1 && previousTailDirection.current.y === 0) {
+            canvas.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
         }
     };
 
@@ -158,6 +157,14 @@ const Snake = () => {
 
     const gameLoop = () => {
         if (!speed.current) return;
+
+        const tail = snake.current[snake.current.length - 1];
+        const pretail = snake.current[snake.current.length - 2];
+
+        previousTailDirection.current = {
+            x: pretail.x - tail.x,
+            y: pretail.y - tail.y,
+        };
 
         const snakeCopy = [...snake.current]; // Create shallow copy to avoid mutating array
 

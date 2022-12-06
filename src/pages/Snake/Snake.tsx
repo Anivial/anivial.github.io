@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TestContainer } from './Test.styled';
+import { TestContainer } from './Snake.styled';
 
 export const CANVAS_SIZE = { x: 600, y: 600 };
 export const SNAKE_START = [{ x: 8, y: 7 }, { x: 8, y: 8 }];
@@ -44,7 +44,7 @@ export interface ICoords {
     y: number;
 }
 
-const Test = () => {
+const Snake = () => {
     // Canvas
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -217,4 +217,4 @@ const Test = () => {
     );
 };
 
-export default Test;
+export default Snake;

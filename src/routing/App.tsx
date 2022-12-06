@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from 'src/components/Navbar/Navbar';
 import Home from 'src/pages/Home';
-import Test from 'src/pages/Test';
+import Snake from 'src/pages/Snake';
 import { AppContainer, Content } from './App.styled';
 
 
@@ -13,7 +13,7 @@ const App = () => {
             <Content>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/test" element={<Test/>}/>
+                    <Route path="/snake" element={<Snake/>}/>
                 </Routes>
             </Content>
         </AppContainer>

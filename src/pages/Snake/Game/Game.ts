@@ -1,5 +1,5 @@
 import { ICoords } from 'src/pages/Snake/Game/type';
-import Snake from 'src/pages/Snake/Game/snake';
+import Snake from 'src/pages/Snake/Game/Snake';
 import {
     APPLE_START,
     BASE_UNIT,

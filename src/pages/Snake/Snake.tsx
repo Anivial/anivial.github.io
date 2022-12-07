@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { TestContainer } from './Snake.styled';
-import Game from 'src/pages/Snake/Game/game';
+import Game from 'src/pages/Snake/Game/Game';
 import { Direction } from 'src/pages/Snake/Game/type';
 
 export const BASE_UNIT = 30;
@@ -37,13 +37,16 @@ export const useFrameLoop = (update: (dt: number) => void) => {
     }, [update]);
 };
 
+export const useForceUpdate = (): () => void => {
+    const [, updateState] = React.useState<any>();
+    return React.useCallback(() => updateState({}), []);
+};
+
 const Snake = () => {
-    // Canvas
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const game = useRef<Game | null>(null);
 
-    const [, updateState] = React.useState<any>();
-    const forceUpdate = React.useCallback(() => updateState({}), []);
+    const forceUpdate = useForceUpdate();
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -55,10 +58,6 @@ const Snake = () => {
             game.current = new Game(forceUpdate);
         }
     }, [forceUpdate, canvasRef]);
-
-    // Game state
-
-    console.log(game.current?.gameOver);
 
     useFrameLoop((dt) => {
         game.current?.update(dt);

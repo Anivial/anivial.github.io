@@ -1,6 +1,6 @@
 import { Direction, ICoords } from 'src/pages/Snake/Game/type';
 import { BASE_UNIT, DIRECTION_START, GRID_SIZE, INITIAL_SPEED, SNAKE_START } from 'src/pages/Snake/Snake';
-import Game from 'src/pages/Snake/Game/game';
+import Game from 'src/pages/Snake/Game/Game';
 
 class Snake {
     public body: Array<ICoords> = [...SNAKE_START];

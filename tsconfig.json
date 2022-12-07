@@ -42,6 +42,6 @@
     },
     "include": [
         "src/**/*",
-        "custom.d.ts"
+        "src/custom.d.ts"
     ]
 }

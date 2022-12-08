@@ -12,8 +12,8 @@ import {
 } from 'src/pages/Snake/Snake';
 
 class Game {
-    static canvas: HTMLCanvasElement;
-    static context: CanvasRenderingContext2D;
+    public canvas: HTMLCanvasElement;
+    public context: CanvasRenderingContext2D;
 
     public forceUpdate: () => void;
     public point: number = 0;
@@ -24,8 +24,15 @@ class Game {
     private timer: number = 0;
     private snake: Snake = new Snake(this);
 
-    constructor(forceUpdate: () => void) {
+    constructor(forceUpdate: () => void, canvas: HTMLCanvasElement) {
         this.forceUpdate = forceUpdate;
+        this.canvas = canvas;
+        const context = canvas.getContext('2d');
+        if (context) {
+            this.context = context;
+        }
+
+        forceUpdate();
     }
 
     public incrementPoint = () => {
@@ -87,12 +94,12 @@ class Game {
     };
 
     public render(dt: number, timer: number) {
-        Game.context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
-        Game.context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
+        this.context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        this.context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
 
         // Draw Apple
-        Game.context.fillStyle = 'red';
-        Game.context.fillRect(this.apple.x * BASE_UNIT, this.apple.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+        this.context.fillStyle = 'red';
+        this.context.fillRect(this.apple.x * BASE_UNIT, this.apple.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
 
         // Snake
         this.snake.render(dt, timer);

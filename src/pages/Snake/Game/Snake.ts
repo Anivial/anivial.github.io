@@ -61,10 +61,10 @@ class Snake {
     };
 
     public render(dt: number, timer: number) {
-        Game.context.fillStyle = 'green';
+        this.game.context.fillStyle = 'green';
         for (let i = 1; i < this.body.length; i++) {
             let { x, y } = this.body[i];
-            Game.context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+            this.game.context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
 
         const where = timer / (this.game.speed || INITIAL_SPEED);
@@ -73,19 +73,19 @@ class Snake {
         const head = this.body[0];
         switch (this.direction) {
         case Direction.ArrowUp: {
-            Game.context.fillRect(head.x * BASE_UNIT, (head.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * where);
+            this.game.context.fillRect(head.x * BASE_UNIT, (head.y + 1) * BASE_UNIT, BASE_UNIT, -BASE_UNIT * where);
             break;
         }
         case Direction.ArrowDown: {
-            Game.context.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * where);
+            this.game.context.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT, BASE_UNIT * where);
             break;
         }
         case Direction.ArrowLeft: {
-            Game.context.fillRect((head.x + 1) * BASE_UNIT, head.y * BASE_UNIT, -BASE_UNIT * where, BASE_UNIT);
+            this.game.context.fillRect((head.x + 1) * BASE_UNIT, head.y * BASE_UNIT, -BASE_UNIT * where, BASE_UNIT);
             break;
         }
         case Direction.ArrowRight: {
-            Game.context.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT * where, BASE_UNIT);
+            this.game.context.fillRect(head.x * BASE_UNIT, head.y * BASE_UNIT, BASE_UNIT * where, BASE_UNIT);
             break;
         }
         default:
@@ -97,20 +97,20 @@ class Snake {
 
         // UP
         if (this.previousTailDirection.x === 0 && this.previousTailDirection.y === -1) {
-            Game.context.fillRect(tail.x * BASE_UNIT, (tail.y + 1) * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1 - where));
+            this.game.context.fillRect(tail.x * BASE_UNIT, (tail.y + 1) * BASE_UNIT, BASE_UNIT, BASE_UNIT * (1 - where));
             // DOWN
         } else if (this.previousTailDirection.x === 0 && this.previousTailDirection.y === 1) {
-            Game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1 - where));
+            this.game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, -BASE_UNIT * (1 - where));
             // LEFT
         } else if (this.previousTailDirection.x === -1 && this.previousTailDirection.y === 0) {
-            Game.context.fillRect((tail.x + 1) * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1 - where), BASE_UNIT);
+            this.game.context.fillRect((tail.x + 1) * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT * (1 - where), BASE_UNIT);
             // RIGHT
         } else if (this.previousTailDirection.x === 1 && this.previousTailDirection.y === 0) {
-            Game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
+            this.game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, -BASE_UNIT * (1 - where), BASE_UNIT);
         }
 
         if (this.justEat) {
-            Game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
+            this.game.context.fillRect(tail.x * BASE_UNIT, tail.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
     }
 

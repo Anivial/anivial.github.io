@@ -2,13 +2,15 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
 export const HomeContainer = styled.div`
-  height: 100%;
-  text-align: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const Header = styled.header`
   display: flex;
-  height: 100%;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;

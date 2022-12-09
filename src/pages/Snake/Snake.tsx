@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { TestContainer } from './Snake.styled';
+import { SnakeCanvas, SnakePage } from './Snake.styled';
 import Game from 'src/pages/Snake/Game/Game';
 import { Direction } from 'src/pages/Snake/Game/type';
 import useFrameLoop from 'src/hooks/useFrameLoop';
@@ -44,8 +44,8 @@ const Snake = () => {
     } = game.current ?? {} as Game;
 
     return (
-        <TestContainer>
-            <canvas
+        <SnakePage>
+            <SnakeCanvas
                 style={
                     gameOver
                         ? { border: '1px solid black', opacity: 0.5 }
@@ -62,7 +62,7 @@ const Snake = () => {
                 </button>
             )}
             <p className="points">{point || 0}</p>
-        </TestContainer>
+        </SnakePage>
     );
 };
 

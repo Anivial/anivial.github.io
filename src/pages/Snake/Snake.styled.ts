@@ -1,9 +1,14 @@
 import styled from '@emotion/styled';
 
-export const TestContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  text-align: center;
+export const SnakePage = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    text-align: center;
+    padding: 28px;
+`;
+
+export const SnakeCanvas = styled.canvas`
+    max-width: 100%;
 `;

@@ -2,6 +2,11 @@ import { Direction, ICoords } from 'src/pages/Snake/Game/type';
 import { BASE_UNIT, DIRECTION_START, GRID_SIZE, INITIAL_SPEED, SNAKE_START } from 'src/pages/Snake/Snake';
 import Game from 'src/pages/Snake/Game/Game';
 
+export enum State {
+    ALIVE,
+    DEAD,
+}
+
 class Snake {
     public body: Array<ICoords> = [...SNAKE_START];
     public direction: ICoords = DIRECTION_START;
@@ -9,6 +14,9 @@ class Snake {
     public previousTailDirection: ICoords = DIRECTION_START;
     private game: Game;
     private justEat: boolean = false;
+    private timer: number = 0;
+    private speed: number = INITIAL_SPEED;
+    public state: State = State.ALIVE;
 
     public constructor(game: Game) {
         this.game = game;
@@ -26,7 +34,15 @@ class Snake {
         return false;
     };
 
-    public update = (dt: number) => {
+    public reset = () => {
+        this.direction = DIRECTION_START;
+        this.nextDirections = [];
+        this.body = [...SNAKE_START];
+        this.previousTailDirection = DIRECTION_START;
+        this.state = State.ALIVE;
+    }
+
+    public loop = (): void => {
         const tail = this.body[this.body.length - 1];
         const pretail = this.body[this.body.length - 2];
 
@@ -55,19 +71,35 @@ class Snake {
             this.justEat = false;
             this.body.pop();
         }
+
         if (this.collides(newSnakeHead, this.body.slice(1))) {
-            this.game.endGame();
+            this.state = State.DEAD;
+        }
+        for (const snake of this.game.snakes) {
+            if (snake !== this) {
+                if (this.collides(newSnakeHead, snake.body)) {
+                    this.state = State.DEAD;
+                }
+            }
         }
     };
 
-    public render(dt: number, timer: number) {
+    public update = (dt: number) => {
+        this.timer += dt;
+        if (this.timer > this.speed) {
+            this.timer = 0;
+            this.loop();
+        }
+    };
+
+    public render(dt: number) {
         this.game.context.fillStyle = 'green';
         for (let i = 1; i < this.body.length; i++) {
             let { x, y } = this.body[i];
             this.game.context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
 
-        const where = timer / (this.game.speed || INITIAL_SPEED);
+        const where = this.timer / (this.game.speed || INITIAL_SPEED);
 
         // Head
         const head = this.body[0];

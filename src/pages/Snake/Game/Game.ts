@@ -1,15 +1,6 @@
 import { ICoords } from 'src/pages/Snake/Game/type';
-import Snake from 'src/pages/Snake/Game/Snake';
-import {
-    APPLE_START,
-    BASE_UNIT,
-    CANVAS_SIZE,
-    DIRECTION_START,
-    GRID_SIZE,
-    INITIAL_SPEED,
-    SCALE,
-    SNAKE_START
-} from 'src/pages/Snake/Snake';
+import Snake, { State } from 'src/pages/Snake/Game/Snake';
+import { APPLE_START, BASE_UNIT, CANVAS_SIZE, GRID_SIZE, SCALE, } from 'src/pages/Snake/Snake';
 
 class Game {
     public canvas: HTMLCanvasElement;
@@ -21,8 +12,7 @@ class Game {
     public apple: ICoords = APPLE_START;
     public isPlaying: boolean = false;
     public gameOver: boolean = false;
-    private timer: number = 0;
-    private snake: Snake = new Snake(this);
+    public snakes: Array<Snake> = [];
 
     constructor(forceUpdate: () => void, canvas: HTMLCanvasElement) {
         this.forceUpdate = forceUpdate;
@@ -31,6 +21,8 @@ class Game {
         if (context) {
             this.context = context;
         }
+
+        this.snakes.push(new Snake(this));
 
         forceUpdate();
     }
@@ -50,20 +42,16 @@ class Game {
     public endGame = () => {
         this.isPlaying = false;
         this.gameOver = true;
-        this.speed = null;
-        this.timer = 0;
 
         this.forceUpdate();
     };
 
     public startGame = () => {
-        this.snake.direction = DIRECTION_START;
-        this.snake.nextDirections = [];
-        this.snake.body = [...SNAKE_START];
-        this.snake.previousTailDirection = DIRECTION_START;
+        for (const snake of this.snakes) {
+            snake.reset();
+        }
+
         this.apple = APPLE_START;
-        this.speed = INITIAL_SPEED;
-        this.timer = 0;
         this.isPlaying = true;
         this.gameOver = false;
 
@@ -72,28 +60,30 @@ class Game {
 
     public generateNewApple = () => {
         let newApple = this.createRandomApple();
-        while (this.snake.collidesWith(newApple)) {
+        while (this.snakes.some(snake => snake.collidesWith(newApple))) {
             newApple = this.createRandomApple();
         }
         this.apple = newApple;
     };
 
     public update = (dt: number) => {
-        if (this.speed !== null) {
-            this.timer += dt;
-            if (this.timer > this.speed) {
-                this.timer = 0;
-                this.loop(dt);
+        if (this.isPlaying) {
+            for (const snake of this.snakes) {
+                snake.update(dt);
             }
         }
-        this.render(dt, this.timer);
+
+        if (
+            (this.snakes.length === 1 && this.snakes[0].state === State.DEAD)
+            || (this.snakes.length > 1 && this.snakes.filter(snake => snake.state === State.DEAD).length === this.snakes.length - 1)
+        ) {
+            this.endGame();
+        }
+
+        this.render(dt);
     };
 
-    public loop = (dt: number) => {
-        this.snake.update(dt);
-    };
-
-    public render(dt: number, timer: number) {
+    public render(dt: number) {
         this.context.setTransform(SCALE, 0, 0, SCALE, 0, 0);
         this.context.clearRect(0, 0, CANVAS_SIZE.x, CANVAS_SIZE.y);
 
@@ -101,12 +91,16 @@ class Game {
         this.context.fillStyle = 'red';
         this.context.fillRect(this.apple.x * BASE_UNIT, this.apple.y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
 
-        // Snake
-        this.snake.render(dt, timer);
+        // Snakes
+        for (const snake of this.snakes) {
+            snake.render(dt);
+        }
     }
 
     public dispose() {
-        this.snake.dispose();
+        for (const snake of this.snakes) {
+            snake.dispose();
+        }
     }
 
     private randomIntFromInterval = (min: number, max: number): number => { // min and max included

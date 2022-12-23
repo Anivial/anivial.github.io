@@ -22,7 +22,7 @@ class Game {
             this.context = context;
         }
 
-        this.snakes.push(new Snake(this, true));
+        this.snakes.push(new Snake(this));
         this.snakes.push(new Snake(this, true));
         this.snakes.push(new Snake(this, true));
 

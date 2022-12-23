@@ -17,14 +17,20 @@ class Snake {
     private timer: number = 0;
     private speed: number = INITIAL_SPEED;
     public state: State = State.ALIVE;
+    private readonly ai: boolean;
 
-    public constructor(game: Game) {
+    public constructor(game: Game, ai: boolean = false) {
         this.game = game;
-        window.addEventListener('keydown', this.moveSnake);
+        this.ai = ai;
+        if (!this.ai) {
+            window.addEventListener('keydown', this.moveSnake);
+        }
     };
 
     public dispose = () => {
-        window.removeEventListener('keydown', this.moveSnake);
+        if (!this.ai) {
+            window.removeEventListener('keydown', this.moveSnake);
+        }
     };
 
     public collidesWith = (piece: ICoords): boolean => {
@@ -42,7 +48,7 @@ class Snake {
         this.state = State.ALIVE;
     }
 
-    public loop = (): void => {
+    public move = (): void => {
         const tail = this.body[this.body.length - 1];
         const pretail = this.body[this.body.length - 2];
 
@@ -82,9 +88,69 @@ class Snake {
                 }
             }
         }
+    }
+
+    public loop = (): void => {
+        if (this.ai) {
+            this.aiMove();
+        }
+        this.move();
     };
 
+    private aiMove = (): void => {
+        const head = this.body[0];
+        const xDiff = this.game.apple.x - head.x;
+        const yDiff = this.game.apple.y - head.y;
+
+        const lst = [
+            [{x: (head.x + Direction.ArrowUp.x) % GRID_SIZE.x , y: (head.y + Direction.ArrowUp.y  % GRID_SIZE.y)}, Direction.ArrowUp],
+            [{x: (head.x + Direction.ArrowDown.x) % GRID_SIZE.x , y: (head.y + Direction.ArrowDown.y  % GRID_SIZE.y)}, Direction.ArrowDown],
+            [{x: (head.x + Direction.ArrowLeft.x) % GRID_SIZE.x , y: (head.y + Direction.ArrowLeft.y  % GRID_SIZE.y)}, Direction.ArrowLeft],
+            [{x: (head.x + Direction.ArrowRight.x) % GRID_SIZE.x , y: (head.y + Direction.ArrowRight.y  % GRID_SIZE.y)}, Direction.ArrowRight],
+        ]
+
+        let availibleDirs = lst.filter(i => {
+            for (const snake of this.game.snakes) {
+                for (const piece of snake.body) {
+                    if (i[0].x === piece.x && i[0].y === piece.y) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+
+        availibleDirs = availibleDirs
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+
+        let res;
+
+        if (availibleDirs.length === 0) {
+            res = Direction.ArrowUp;
+        } else {
+            res = availibleDirs.sort((a, b) => this.dist(a[0], this.game.apple) - this.dist(b[0], this.game.apple))[0][1]
+        }
+
+        this.nextDirections = [res];
+    };
+
+    public dist = (piece1: ICoords, piece2: ICoords): number => {
+        return Math.min(
+            (piece1.x - piece2.x + GRID_SIZE.x) % GRID_SIZE.x,
+                Math.abs(piece1.x - piece2.x),
+            ) + Math.min(
+            (piece1.y - piece2.y + GRID_SIZE.y) % GRID_SIZE.y,
+                Math.abs(piece1.y - piece2.y),
+            );
+    }
+
     public update = (dt: number) => {
+        if (this.state === State.DEAD) {
+            return;
+        }
+
         this.timer += dt;
         if (this.timer > this.speed) {
             this.timer = 0;
@@ -93,7 +159,15 @@ class Snake {
     };
 
     public render(dt: number) {
-        this.game.context.fillStyle = 'green';
+        if (this.state === State.DEAD && this.game.snakes.length > 1) {
+            return
+        }
+
+        if (this.ai) {
+            this.game.context.fillStyle = 'pink';
+        } else {
+            this.game.context.fillStyle = 'green';
+        }
         for (let i = 1; i < this.body.length; i++) {
             let { x, y } = this.body[i];
             this.game.context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);

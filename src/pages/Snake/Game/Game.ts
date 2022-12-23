@@ -22,7 +22,9 @@ class Game {
             this.context = context;
         }
 
-        this.snakes.push(new Snake(this));
+        this.snakes.push(new Snake(this, true));
+        this.snakes.push(new Snake(this, true));
+        this.snakes.push(new Snake(this, true));
 
         forceUpdate();
     }
@@ -54,6 +56,7 @@ class Game {
         this.apple = APPLE_START;
         this.isPlaying = true;
         this.gameOver = false;
+        this.point = 0;
 
         this.forceUpdate();
     };

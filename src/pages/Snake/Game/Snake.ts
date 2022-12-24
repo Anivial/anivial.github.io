@@ -7,6 +7,12 @@ export enum State {
     DEAD,
 }
 
+type SnakeParams = {
+    ai?: boolean;
+    color?: string;
+    speed?: number;
+}
+
 class Snake {
     public body: Array<ICoords> = [...SNAKE_START];
     public direction: ICoords = DIRECTION_START;
@@ -15,13 +21,22 @@ class Snake {
     private game: Game;
     private justEat: boolean = false;
     private timer: number = 0;
-    private speed: number = INITIAL_SPEED;
+    private readonly speed: number;
     public state: State = State.ALIVE;
     private readonly ai: boolean;
+    private readonly color;
 
-    public constructor(game: Game, ai: boolean = false) {
+    public constructor(game: Game, options: SnakeParams = {}) {
+        const {
+            ai = false,
+            color = 'green',
+            speed = INITIAL_SPEED,
+        } = options;
+
         this.game = game;
         this.ai = ai;
+        this.color = color;
+        this.speed = speed;
         if (!this.ai) {
             window.addEventListener('keydown', this.moveSnake);
         }
@@ -99,8 +114,6 @@ class Snake {
 
     private aiMove = (): void => {
         const head = this.body[0];
-        const xDiff = this.game.apple.x - head.x;
-        const yDiff = this.game.apple.y - head.y;
 
         const lst = [
             [{x: (head.x + Direction.ArrowUp.x) % GRID_SIZE.x , y: (head.y + Direction.ArrowUp.y  % GRID_SIZE.y)}, Direction.ArrowUp],
@@ -162,18 +175,13 @@ class Snake {
         if (this.state === State.DEAD && this.game.snakes.length > 1) {
             return
         }
-
-        if (this.ai) {
-            this.game.context.fillStyle = 'pink';
-        } else {
-            this.game.context.fillStyle = 'green';
-        }
+        this.game.context.fillStyle = this.color;
         for (let i = 1; i < this.body.length; i++) {
             let { x, y } = this.body[i];
             this.game.context.fillRect(x * BASE_UNIT, y * BASE_UNIT, BASE_UNIT, BASE_UNIT);
         }
 
-        const where = this.timer / (this.game.speed || INITIAL_SPEED);
+        const where = this.timer / this.speed;
 
         // Head
         const head = this.body[0];

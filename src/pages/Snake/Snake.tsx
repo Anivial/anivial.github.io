@@ -46,16 +46,12 @@ const Snake = () => {
     return (
         <SnakePage>
             <SnakeCanvas
-                style={
-                    gameOver
-                        ? { border: '1px solid black', opacity: 0.5 }
-                        : { border: '1px solid black' }
-                }
                 ref={canvasRef}
                 width={CANVAS_SIZE.x}
                 height={CANVAS_SIZE.y}
+                gameOver={gameOver}
             />
-            {gameOver && <div className="game-over">Game Over</div>}
+            {gameOver && <div>Game Over</div>}
             {!isPlaying && (
                 <button className="start" onClick={startGame}>
                     Start Game

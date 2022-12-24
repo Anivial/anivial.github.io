@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 
 export const SnakePage = styled.div`
     display: flex;
@@ -9,6 +10,15 @@ export const SnakePage = styled.div`
     padding: 28px;
 `;
 
-export const SnakeCanvas = styled.canvas`
+type SnakeCanvasProps = {
+    gameOver?: boolean;
+};
+
+export const SnakeCanvas = styled.canvas<SnakeCanvasProps>`
     max-width: 100%;
-`;
+    border: solid 1px black;
+  
+    ${props => props.gameOver && css`
+          opacity: 0.5;
+    `}
+`

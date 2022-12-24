@@ -1,6 +1,6 @@
 import { ICoords } from 'src/pages/Snake/Game/type';
 import Snake, { State } from 'src/pages/Snake/Game/Snake';
-import { APPLE_START, BASE_UNIT, CANVAS_SIZE, GRID_SIZE, SCALE, } from 'src/pages/Snake/Snake';
+import { BASE_UNIT, CANVAS_SIZE, GRID_SIZE, SCALE, } from 'src/pages/Snake/Snake';
 
 class Game {
     public canvas: HTMLCanvasElement;
@@ -8,11 +8,11 @@ class Game {
 
     public forceUpdate: () => void;
     public point: number = 0;
-    public speed: number | null = null;
-    public apple: ICoords = APPLE_START;
+    public apple: ICoords;
     public isPlaying: boolean = false;
     public gameOver: boolean = false;
     public snakes: Array<Snake> = [];
+    public firstGame = true;
 
     constructor(forceUpdate: () => void, canvas: HTMLCanvasElement) {
         this.forceUpdate = forceUpdate;
@@ -23,8 +23,10 @@ class Game {
         }
 
         this.snakes.push(new Snake(this));
-        this.snakes.push(new Snake(this, true));
-        this.snakes.push(new Snake(this, true));
+        this.snakes.push(new Snake(this, { ai: true, color: "pink" }));
+        this.snakes.push(new Snake(this, { ai: true, color: "purple" }));
+
+        this.generateNewApple();
 
         forceUpdate();
     }
@@ -53,7 +55,11 @@ class Game {
             snake.reset();
         }
 
-        this.apple = APPLE_START;
+        if (!this.firstGame) {
+            this.generateNewApple();
+        }
+
+        this.firstGame = false;
         this.isPlaying = true;
         this.gameOver = false;
         this.point = 0;

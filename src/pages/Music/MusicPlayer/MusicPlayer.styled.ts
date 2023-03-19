@@ -194,14 +194,3 @@ export const PlayButton = styled(PrevNextButton)`
         box-shadow: 0 0 8px 0 ${lighterShadow};
     }
 `;
-
-// Playlist
-export const MusicPlayListContainer = styled.div`
-    display: flex;
-    height: 200px;
-    overflow-y: scroll;
-
-    @media (min-width: 992px) {
-        display: none;
-    }
-`;

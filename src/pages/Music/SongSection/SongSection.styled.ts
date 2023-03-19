@@ -4,24 +4,28 @@ import { css } from '@emotion/react';
 const shadowColor = '#0a2a62';
 
 export const SongSectionContainer = styled.div`
-    display: none;
-    flex: 0;
+    display: flex;
+    justify-content: center;
+
+    margin-top: 16px;
 
     @media (min-width: 992px) {
-        display: flex;
+        margin-top: 0;
     }
 `;
 
 export const PlayListContainer = styled.div`
     display: flex;
-    max-width: 330px;
+    min-width: 330px;
     background-color: white;
-    border-radius: 40px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 16px 0;
     margin: 8px;
 
     @media (min-width: 992px) {
         min-width: 500px;
+        border-radius: 40px;
+        padding: 16px;
     }
 `;
 

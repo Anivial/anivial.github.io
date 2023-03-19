@@ -10,7 +10,6 @@ import {
     ImgWrap,
     MusicPlayerContainer,
     MusicPlayerContent,
-    MusicPlayListContainer,
     PlayButton,
     PlayHead,
     PrevNextButton,
@@ -19,15 +18,6 @@ import {
     TimeLine,
 } from './MusicPlayer.styled';
 import { useMusic } from 'src/pages/Music/MusicProvider';
-import {
-    PlayList,
-    Track,
-    TrackDuration,
-    TrackImg,
-    TrackIndex,
-    TrackInfos,
-    TrackName
-} from 'src/pages/Music/SongSection/SongSection.styled';
 
 const MusicPlayer = () => {
     const {
@@ -45,10 +35,6 @@ const MusicPlayer = () => {
         pause,
         prevSong,
         playOrPause,
-        // For list
-        index,
-        musicList,
-        clickAudio,
     } = useMusic();
 
     useEffect(() => {
@@ -109,34 +95,6 @@ const MusicPlayer = () => {
                         </PrevNextButton>
                     </Controls>
                 </CurrentSong>
-
-                <MusicPlayListContainer>
-                    <PlayList>
-                        {musicList.map((music, key = 0) =>
-                            <Track
-                                key={key}
-                                onClick={() => clickAudio(key)}
-                                isCurrentTrack={index === key}
-                                isPlaying={pause}
-                            >
-                                <TrackIndex>{(key + 1).toLocaleString(undefined, { minimumIntegerDigits: 2 })}</TrackIndex>
-
-                                <TrackImg src={music.img} alt="img"/>
-
-                                <TrackInfos>
-                                    <TrackName>{music.name}</TrackName>
-                                </TrackInfos>
-
-                                <TrackDuration>
-                                    {index === key
-                                        ? currentTime
-                                        : music.duration
-                                    }
-                                </TrackDuration>
-                            </Track>
-                        )}
-                    </PlayList>
-                </MusicPlayListContainer>
             </MusicPlayerContent>
         </MusicPlayerContainer>
     );

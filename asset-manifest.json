@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.js": "/static/js/main.942fd675.js",
+    "static/media/Farewells.mp3": "/static/media/Farewells.8974739b82dc275f6f79.mp3",
+    "static/media/Crystal Night.mp3": "/static/media/Crystal Night.ee735759c07c5ce291ca.mp3",
+    "static/media/Journey's End.mp3": "/static/media/Journey's End.dd54c2351aa6bda3afb6.mp3",
+    "static/media/Swarm and Retaliation.mp3": "/static/media/Swarm and Retaliation.db6e44478eb5029fed69.mp3",
+    "static/media/Afterward.mp3": "/static/media/Afterward.2c5cf1efd0d23b6b0d46.mp3",
+    "static/media/Damage.mp3": "/static/media/Damage.016ab851aa644b90b43e.mp3",
+    "static/media/quick.jpg": "/static/media/quick.92d908e6245f0d9ca874.jpg",
+    "static/media/logo.svg": "/static/media/logo.426278726f90c57aa805eb591397948b.svg",
+    "index.html": "/index.html",
+    "main.942fd675.js.map": "/static/js/main.942fd675.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.942fd675.js"
+  ]
+}

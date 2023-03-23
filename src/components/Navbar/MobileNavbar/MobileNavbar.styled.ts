@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
-import { List } from '@mui/material';
+import { Drawer, List, ListItemText } from '@mui/material';
 
 export const StyledToolbar = styled(Toolbar)`
     display: flex;
@@ -27,10 +27,26 @@ export const StyledToolbar = styled(Toolbar)`
     }
 `;
 
+export const StyledDrawer = styled(Drawer)`
+    .MuiPaper-root {
+        background-color: #282c34;
+        color: white;
+    }
+`;
+
+export const StyledListItemText = styled(ListItemText)`
+    > * {
+        font-size: 14rem !important;
+    }
+`;
+
 export const StyledList = styled(List)`
+    min-width: min(280px, 100vw);
+    padding: 8px;
+
     a {
         text-decoration: none;
-        color: black;
+        color: white;
     }
 `;
 

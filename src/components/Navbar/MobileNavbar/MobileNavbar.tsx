@@ -4,8 +4,15 @@ import { Link } from 'react-router-dom';
 import routing from 'src/routing/routing';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import { Drawer, ListItemButton, ListItemText } from '@mui/material';
-import { DrawerButton, StyledList, StyledToolbar, Title } from './MobileNavbar.styled';
+import { ListItemButton } from '@mui/material';
+import {
+    DrawerButton,
+    StyledDrawer,
+    StyledList,
+    StyledListItemText,
+    StyledToolbar,
+    Title
+} from './MobileNavbar.styled';
 import Group from 'src/components/Navbar/MobileNavbar/Group';
 
 const MobileNavbar = () => {
@@ -19,7 +26,7 @@ const MobileNavbar = () => {
             <DrawerButton onClick={() => setOpenDrawer(!openDrawer)}>
                 <MenuRoundedIcon/>
             </DrawerButton>
-            <Drawer
+            <StyledDrawer
                 open={openDrawer}
                 onClose={() => setOpenDrawer(false)}
                 anchor="left"
@@ -27,9 +34,15 @@ const MobileNavbar = () => {
                     keepMounted: false,
                 }}
             >
-                <StyledList
-                    sx={{ minWidth: 280 }}
-                >
+                <StyledList>
+                    <Link
+                        onClick={() => setOpenDrawer(false)}
+                        to={routing.link}
+                    >
+                        <ListItemButton>
+                            <StyledListItemText primary="HOME"/>
+                        </ListItemButton>
+                    </Link>
                     {routing.routes?.map(route => {
                         if (!route.routes) {
                             return (
@@ -38,7 +51,7 @@ const MobileNavbar = () => {
                                     to={route.link}
                                 >
                                     <ListItemButton>
-                                        <ListItemText primary={route.title}/>
+                                        <StyledListItemText primary={route.title}/>
                                     </ListItemButton>
                                 </Link>
                             );
@@ -52,7 +65,7 @@ const MobileNavbar = () => {
                         );
                     })}
                 </StyledList>
-            </Drawer>
+            </StyledDrawer>
 
             <Link to={routing.link}>
                 <Title>

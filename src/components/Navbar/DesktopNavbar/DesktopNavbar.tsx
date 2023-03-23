@@ -12,7 +12,7 @@ const DesktopNavbar = () => {
             <Link to={routing.link}>
                 <Title>
                     <GitHubIcon/>
-                    {routing.title}
+                    anivial.github.io
                 </Title>
             </Link>
 

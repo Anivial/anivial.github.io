@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Collapse, List, ListItemButton, ListItemText, } from '@mui/material';
+import { Collapse, List, ListItemButton, } from '@mui/material';
 import { routesType } from 'src/routing/routing';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { StyledListItemText } from '../MobileNavbar.styled';
 
 type Props = {
     routes: routesType;
@@ -21,7 +22,7 @@ const Group = ({
     return (
         <>
             <ListItemButton onClick={handleClick}>
-                <ListItemText primary={routes.title}/>
+                <StyledListItemText primary={routes.title}/>
                 {open
                     ? <ExpandLess/>
                     : <ExpandMore/>
@@ -36,7 +37,7 @@ const Group = ({
                             to={route.link}
                         >
                             <ListItemButton sx={{ pl: 4 }}>
-                                <ListItemText primary={route.title}/>
+                                <StyledListItemText primary={route.title}/>
                             </ListItemButton>
                         </Link>
                     ))}

@@ -1,13 +1,20 @@
 import { css } from '@emotion/react';
 
 export const GlobalStyle = css`
+
+    // Reset margins and box-sizing
     * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+
+        &:before, &:after {
+            box-sizing: inherit;
+        }
     }
 
     html {
-        /* 10px */
+        /* Trick to match 1rem = 1px */
         font-size: 6.25%;
         height: 100%;
     }
